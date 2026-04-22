@@ -1,0 +1,14 @@
+{
+  "name": "rpg-cashier-system-v2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Mobile-first cashier system with role login, SQLite, kitchen split, and reports.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>收銀組 - 收銀系統</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <section class="page-head card">
+      <div>
+        <div class="eyebrow">收銀</div>
+        <h1>建立訂單</h1>
+      </div>
+      <div class="actions">
+        <button class="secondary" onclick="location.href='app.html'">返回主畫面</button>
+        <button class="ghost" onclick="logout()">登出</button>
+      </div>
+    </section>
+
+    <section class="grid-2">
+      <div class="card stack">
+        <h2>涼麵</h2>
+        <div class="option-box" id="ramenCard">
+          <input type="hidden" id="ramenChicken" value="none">
+          <input type="hidden" id="ramenSauce" value="soy">
+          <input type="hidden" id="ramenSpicy" value="false">
+          <input type="hidden" id="ramenEco" value="false">
+          <input type="hidden" id="ramenCucumber" value="true">
+          <input type="hidden" id="ramenCarrot" value="true">
+
+          <label class="field">
+            <span>小黃瓜</span>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-target="ramenCucumber" data-value="true">要</button>
+              <button type="button" class="seg-btn" data-target="ramenCucumber" data-value="false">不要</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span>紅蘿蔔</span>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-target="ramenCarrot" data-value="true">要</button>
+              <button type="button" class="seg-btn" data-target="ramenCarrot" data-value="false">不要</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span>雞絲</span>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-target="ramenChicken" data-value="none">不加</button>
+              <button type="button" class="seg-btn" data-target="ramenChicken" data-value="add">加量</button>
+              <button type="button" class="seg-btn" data-target="ramenChicken" data-value="double">雙倍</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span>醬料</span>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-target="ramenSauce" data-value="soy">醬油</button>
+              <button type="button" class="seg-btn" data-target="ramenSauce" data-value="sesame">麻醬</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span>辣度</span>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-target="ramenSpicy" data-value="false">不辣</button>
+              <button type="button" class="seg-btn" data-target="ramenSpicy" data-value="true">辣</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span>餐具</span>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-target="ramenEco" data-value="false">一般</button>
+              <button type="button" class="seg-btn" data-target="ramenEco" data-value="true">環保</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span>份數</span>
+            <div class="qty-row">
+              <button type="button" class="qty-btn" onclick="changeQty('ramenQty', -1)">-</button>
+              <input id="ramenQty" type="number" min="1" value="1">
+              <button type="button" class="qty-btn" onclick="changeQty('ramenQty', 1)">+</button>
+            </div>
+          </label>
+
+          <button type="button" onclick="addRamen(this)">加入涼麵</button>
+        </div>
+
+        <h2>糖葫蘆</h2>
+        <div class="option-box" id="hawsCard">
+          <input type="hidden" id="hawsType" value="mix">
+
+          <label class="field">
+            <span>口味</span>
+            <div class="segmented">
+              <button type="button" class="seg-btn active" data-target="hawsType" data-value="mix">綜合</button>
+              <button type="button" class="seg-btn" data-target="hawsType" data-value="grape">葡萄</button>
+              <button type="button" class="seg-btn" data-target="hawsType" data-value="tomato">小番茄</button>
+            </div>
+          </label>
+
+          <label class="field">
+            <span>份數</span>
+            <div class="qty-row">
+              <button type="button" class="qty-btn" onclick="changeQty('hawsQty', -1)">-</button>
+              <input id="hawsQty" type="number" min="1" value="1">
+              <button type="button" class="qty-btn" onclick="changeQty('hawsQty', 1)">+</button>
+            </div>
+          </label>
+
+          <button type="button" onclick="addHaws(this)">加入糖葫蘆</button>
+        </div>
+
+        <h2>飲料</h2>
+        <div class="option-box">
+          <div class="drink-grid">
+            <label class="field">
+              <span>紅茶</span>
+              <div class="qty-row">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_black', -1)">-</button>
+                <input id="drink_black" type="number" min="0" value="0">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_black', 1)">+</button>
+              </div>
+            </label>
+            <label class="field">
+              <span>綠茶</span>
+              <div class="qty-row">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_green', -1)">-</button>
+                <input id="drink_green" type="number" min="0" value="0">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_green', 1)">+</button>
+              </div>
+            </label>
+            <label class="field">
+              <span>洛神花茶</span>
+              <div class="qty-row">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_roselle', -1)">-</button>
+                <input id="drink_roselle" type="number" min="0" value="0">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_roselle', 1)">+</button>
+              </div>
+            </label>
+            <label class="field">
+              <span>冬瓜茶</span>
+              <div class="qty-row">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_winter', -1)">-</button>
+                <input id="drink_winter" type="number" min="0" value="0">
+                <button class="qty-btn" type="button" onclick="changeQty('drink_winter', 1)">+</button>
+              </div>
+            </label>
+          </div>
+          <button type="button" onclick="addDrinks()">加入飲料</button>
+        </div>
+      </div>
+
+      <div class="card stack">
+        <h2>本次訂單</h2>
+        <div id="cart" class="stack"></div>
+        <div class="summary-box">
+          <div class="muted small">總金額</div>
+          <div id="cartTotal" class="big-money">NT$ 0</div>
+        </div>
+        <div class="actions">
+          <button class="good" onclick="submitOrder()">送出訂單</button>
+          <button class="secondary" onclick="clearCart()">清空</button>
+        </div>
+        <div id="message" class="muted small"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>訂單預覽</h2>
+      <div id="preview" class="stack"></div>
+    </section>
+  </div>
+
+  <script src="js/app-config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/cashier.js"></script>
+  <script>
+    document.querySelectorAll('.seg-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        document.querySelectorAll(`.seg-btn[data-target="${targetId}"]`).forEach((x) => x.classList.remove('active'));
+        btn.classList.add('active');
+        const input = document.getElementById(targetId);
+        if (input) input.value = btn.dataset.value;
+        if (targetId === 'hawsType' && typeof applySoldOutState === 'function') {
+          applySoldOutState();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

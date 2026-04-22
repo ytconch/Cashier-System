@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>武告喝甲 - 代辦事項</title>
+    <style>
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .header-title {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #e67e22;
+            margin-bottom: 20px;
+        }
+
+        h1 { color: #d35400; margin: 0; }
+
+        .navbar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .navbar a {
+            color: #e67e22;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 15px;
+            border: 1px solid #e67e22;
+            border-radius: 5px;
+        }
+
+        .section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        ul { list-style: none; padding: 0; }
+
+        li {
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .done {
+            color: #aaa;
+            text-decoration: line-through;
+        }
+
+        .status {
+            font-size: 0.85em;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-title">
+        <h1>🔥 武告喝甲 🔥</h1>
+        <p>代辦事項清單</p>
+    </div>
+
+    <nav class="navbar">
+        <a href="main.html">返回首頁</a>
+    </nav>
+
+    <div class="section">
+        <ul id="todo-list">
+            </ul>
+    </div>
+
+    <script>
+        const todos = [
+            { task: "攜帶 麵、飲料", status: "待處理" },
+            { task: "購買 更長的竹籤", status: "待處理" },
+            { task: "攜帶 小黃瓜", status: "待處理" },
+            { task: "購買 白芝麻 , 壽喜燒醬*4", status: "待處理" },
+            { task: "購買 紅蘿蔔 , 蒜頭", status: "待處理" },
+            { task: "攜帶 平底鍋 , 大刀", status: "待處理" },
+            { task: "攜帶 削皮器", status: "待處理" },
+            { task: "攜帶 4號電池", status: "待處理" },
+            { task: "攜帶 胡麻醬", status: "待處理" },
+            { task: "攜帶 冰箱 , 保冰塊", status: "待處理" },
+            { task: "領取 冰塊", status: "待處理" },
+        ];
+
+        function render() {
+            const list = document.getElementById('todo-list');
+            list.innerHTML = todos.map(item => `
+                <li class="${item.status === '已完成' ? 'done' : ''}">
+                    <span>${item.task}</span>
+                    <span class="status">[${item.status}]</span>
+                </li>
+            `).join('');
+        }
+
+        window.onload = render;
+    </script>
+</body>
+
+</html>

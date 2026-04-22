@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>武告喝甲 - 園遊會籌備</title>
+    <style>
+        /* 基礎樣式 (保留原本風格) */
+        body {
+            font-family: "Microsoft JhengHei", sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 10px auto;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+
+        h1,
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #e67e22;
+            padding-bottom: 5px;
+        }
+
+        .section {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .dessert-section {
+            border-left: 5px solid #ff80ab;
+            background: #fff5f8;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 5px 0;
+            border-bottom: 1px dashed #eee;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            color: #e67e22;
+        }
+
+        .staff-id {
+            display: inline-block;
+            background: #fff3e0;
+            color: #e65100;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px;
+            font-size: 0.9em;
+            border: 1px solid #ffe0b2;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* 新增：導覽列樣式 */
+        .navbar {
+            background-color: #e67e22;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 8px 15px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: background 0.3s;
+        }
+
+        .navbar a:hover,
+        .navbar a.active {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .header-title {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            border: 3px solid #e67e22;
+        }
+
+        .header-title h1 {
+            color: #d35400;
+            font-size: 2.8em;
+            margin: 0;
+            border: none;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-title">
+        <h1>🔥 武告喝甲 🔥</h1>
+        <p style="color: #7f8c8d; font-weight: bold; margin-top: 5px;">—— 園遊會營運籌備系統 ——</p>
+    </div>
+
+    <nav class="navbar">
+        <a href="main.html">返回</a>
+    </nav>
+
+    <div class="section">
+        <h2>💰 目前明細開支</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>項目名稱</th>
+                        <th>數量</th>
+                        <th>單價</th>
+                        <th>小計</th>
+                        <th>支出者</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                    <tr style="background-color: #fff3e0; font-weight: bold;">
+                        <td colspan="4" style="text-align: right; color: #d35400;">總計金額：</td>
+                        <td style="color: #d35400;">$168</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</body>
+<script>
+    const expenses = [
+        { name: "實驗-綠葡萄", quantity: 2, price: 100, payer: "詹秉睿" },
+        { name: "實驗-冰塊", quantity: 2, price: 14, payer: "徐暐銘" },
+        { name: "實驗-白糖", quantity: 1, price: 40, payer: "梁鈞宥" },
+        { name: "白糖 1kg", quantity: 1, price: 36, payer: "詹秉睿" },
+        { name: "壽喜燒醬 500ml", quantity: 1, price: 79, payer: "詹秉睿" },
+        { name: "胡麻醬 1000ml", quantity: 1, price: 279, payer: "詹秉睿" },
+        { name: "油麵 * 3 , 蒜仁 * 2 , 冰塊 * 2 , 小黃瓜 * 3", quantity: 1, price: 187, payer: "徐暐銘" },
+        { name: "列印宣傳單", quantity: 1, price: 10, payer: "詹秉睿" },
+        { name: "紅辣椒 * 1 , 胡蘿蔔 * 1 , 購物袋 * 1 , 瓦斯(3) * 2 , 蒜頭 * 1 , 油麵 * 3 , 砂糖 * 1 , 油 * 1", quantity: 1, price: 750, payer: "蘇冠宇" },
+        { name: "冰塊*3 , 袋子", quantity: 1, price: 44, payer: "吳承浩" },
+        { name: "胡椒鹽 , 白芝麻", quantity: 1, price: 73, payer: "吳承浩" },
+        { name: "秤", quantity: 1, price: 320, payer: "吳承浩" },
+        { name: "園遊會海報/傳單", quantity:  8 + 15, price: 10, payer: "詹秉睿" },
+        { name: "壽喜燒醬 * 4 , 冰塊 , 砂糖*4", quantity: 1, price: 476, payer: "詹秉睿" },
+        { name: "冰塊大 * 3 , 冰塊小 * 2", quantity: 1, price: (70 * 3 + 35*2), payer: "詹秉睿" },
+        { name: "葡萄  , 番茄", quantity: 1, price: (1000 + 200), payer: "詹秉睿" },
+        { name: "糖", quantity: 1, price: 327, payer: "簡酵懞" },
+        { name: "涼麵", quantity: 1, price: 1325, payer: "徐偉銘" }
+    ];
+
+    function renderTable() {
+        const tbody = document.querySelector('tbody');
+        const tfoot = document.querySelector('tfoot');
+        let total = 0;
+
+        // 清空現有表格內容
+        tbody.innerHTML = '';
+
+        // 遍歷陣列生成列
+        expenses.forEach(item => {
+            const subtotal = item.quantity * item.price;
+            total += subtotal;
+
+            const row = `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>$${item.price}</td>
+                    <td>$${subtotal}</td>
+                    <td>${item.payer}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+
+        // 更新總計金額
+        tfoot.innerHTML = `
+            <tr style="background-color: #fff3e0; font-weight: bold;">
+                <td colspan="3" style="text-align: right; color: #d35400;">總計金額：</td>
+                <td colspan="2" style="color: #d35400;">$${total}</td>
+            </tr>
+        `;
+    }
+
+    // 頁面載入時執行
+    window.onload = renderTable;
+</script>
+
+</html>

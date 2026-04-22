@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>財務 - 收銀系統</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="shell">
+    <section id="live-kpi" class="card">
+      <div class="kpi-grid">
+      </div>
+    </section>
+
+    <div class="grid-2">
+      <section class="card stack">
+        <h2>今日營收高峰 (每小時)</h2>
+        <div id="hourly" class="chart-container"></div>
+      </section>
+
+      <section class="card stack">
+        <h2>後勤出餐效率</h2>
+        <div id="workload" class="stack"></div>
+      </section>
+    </div>
+
+    <section class="card stack">
+      <h2>品項獲利排行 <small>(最賺錢的排前面)</small></h2>
+      <div class="table-wrap">
+        <table class="table highlight">
+          <thead>
+            <tr>
+              <th>品項名稱</th>
+              <th>銷量</th>
+              <th>總營收</th>
+              <th>毛利額</th>
+              <th>獲利貢獻度</th>
+            </tr>
+          </thead>
+          <tbody id="product-stats"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card stack">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>所有訂單流水帳</h2>
+        <small id="last-update" class="muted"></small>
+      </div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>編號</th>
+              <th>時間</th>
+              <th>品項摘要</th>
+              <th>金額</th>
+              <th>狀態</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="all-orders-list"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/app-config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/finance.js"></script>
+</body>
+
+</html>

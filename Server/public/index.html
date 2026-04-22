@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>登入 - 收銀系統</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell auth-shell">
+    <section class="hero card">
+      <div class="brand-block">
+        <div class="eyebrow">收銀系統</div>
+        <h1>主畫面登入</h1>
+      </div>
+
+      <div class="grid-2">
+        <form id="loginForm" class="stack card soft">
+          <h2>登入</h2>
+          <label class="field">
+            <span>帳號</span>
+            <input id="username" autocomplete="username" placeholder="輸入帳號">
+          </label>
+          <label class="field">
+            <span>密碼</span>
+            <input id="password" type="password" autocomplete="current-password" placeholder="輸入密碼">
+          </label>
+          <button type="submit">登入</button>
+          <div id="message" class="muted small"></div>
+        </form>
+
+        <div class="card soft stack">
+          <h2>目前登入</h2>
+          <div id="sessionBox" class="stack"></div>
+          <div class="hr"></div>
+          <h2>可進入區域</h2>
+          <div id="roleTiles" class="role-grid"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="js/common.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

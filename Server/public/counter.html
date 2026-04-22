@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>櫃台組 - 收銀系統</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <section class="page-head card">
+      <div>
+        <div class="eyebrow">櫃台</div>
+        <h1 id="roleTitle">櫃台組</h1>
+      </div>
+      <div class="actions">
+        <button class="secondary" onclick="location.href='app.html'">返回主畫面</button>
+        <button class="ghost" onclick="logout()">登出</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>可取餐訂單</h2>
+      <div id="queue" class="stack"></div>
+    </section>
+  </div>
+
+  <script src="js/app-config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/counter.js"></script>
+</body>
+</html>

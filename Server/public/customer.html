@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>顧客查詢 - 收銀系統</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell narrow">
+    <section class="page-head card">
+      <div>
+        <div class="eyebrow">顧客查詢</div>
+        <h1>訂單狀態</h1>
+      </div>
+    </section>
+
+    <section class="card stack">
+      <label class="field">
+        <span>訂單編號</span>
+        <input id="orderNo" inputmode="numeric" placeholder="輸入號碼，例如 1">
+      </label>
+      <div class="actions">
+        <button onclick="startQuery()">查詢</button>
+        <button class="secondary" onclick="clearQuery()">清空</button>
+      </div>
+      <div id="result" class="stack"></div>
+    </section>
+  </div>
+
+  <script src="js/app-config.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/customer.js"></script>
+</body>
+</html>
