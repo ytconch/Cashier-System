@@ -19,6 +19,6 @@ Frontend: HTML5, CSS3, JavaScript
 
 Backend: Node.js
 
-Database: SQLite / JSON Storage (視你的實作而定)
+Database: SQLite / JSON Storage
 
 Authentication: JWT 安全驗證
