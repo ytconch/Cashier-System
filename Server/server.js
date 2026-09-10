@@ -689,9 +689,9 @@ app.get('/api/orders', (req, res) => {
     where.push(`order_no LIKE ?`);
     params.push(`%${q}%`);
   }
-  if (role === 'kitchen_ramen') {
+  if (role === 'kitchen_ramen' || role === 'ramen') {
     where.push(`ramen_required > 0 AND status IN ('waiting', 'preparing')`);
-  } else if (role === 'kitchen_haws') {
+  } else if (role === 'kitchen_haws' || role === 'haws') {
     where.push(`haws_required > 0 AND status IN ('waiting', 'preparing')`);
   } else if (role === 'counter') {
     where.push(`status = 'ready'`);
@@ -974,7 +974,7 @@ app.patch('/api/production/:component', (req, res) => {
   }
 
   const expectedRole = kitchenRoleFor(component);
-  if (![expectedRole, 'admin'].includes(req.session.role)) {
+  if (![expectedRole, component, 'admin'].includes(req.session.role)) {
     return json(res, 403, { ok: false, message: '無權限修改此組別庫存' });
   }
 
@@ -1042,7 +1042,7 @@ app.post('/api/orders/:id/return', requireSession('counter', 'admin'), (req, res
 });
 
 app.get('/api/kitchen/queue', (req, res) => {
-  const role = req.query.role;
+  const role = req.query.role || req.session?.role;
   const orders = db.prepare(`
     SELECT * FROM orders
     WHERE status IN ('waiting', 'preparing')
@@ -1051,8 +1051,8 @@ app.get('/api/kitchen/queue', (req, res) => {
 
   const filtered = orders.map(order => {
     const items = order.items.filter(item =>
-      role === 'kitchen_ramen' ? item.category === 'ramen' :
-      role === 'kitchen_haws' ? item.category === 'haws' :
+      (role === 'kitchen_ramen' || role === 'ramen') ? item.category === 'ramen' :
+      (role === 'kitchen_haws' || role === 'haws') ? item.category === 'haws' :
       true
     );
     return { ...order, items };

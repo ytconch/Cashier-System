@@ -5,7 +5,8 @@
   "description": "Mobile-first cashier system with role login, SQLite, kitchen split, and reports.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "node test/smoke.test.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.8.1",

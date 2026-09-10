@@ -7,26 +7,27 @@
 [![SQLite3](https://img.shields.io/badge/Database-SQLite3%20(WAL%20Mode)-003B57?style=flat-square&logo=sqlite)](https://www.sqlite.org/wal.html)
 [![Reverse Proxy](https://img.shields.io/badge/Gateway-Nginx%20%2B%20DuckDNS-009639?style=flat-square&logo=nginx)](https://nginx.org/)
 [![Client Engine](https://img.shields.io/badge/Frontend-Vanilla%20ES6%2B%20%2F%20HTML5-F7DF1E?style=flat-square&logo=javascript)](https://developer.mozilla.org/zh-TW/docs/Web/JavaScript)
+[![Tests](https://img.shields.io/badge/Tests-7%2F7%20Passed-brightgreen?style=flat-square)](Server/test/smoke.test.js)
 [![Production Verified](https://img.shields.io/badge/Production%20Status-201%20Orders%20Verified%20(Zero%20Loss)-brightgreen?style=flat-square)](https://github.com/ytconch/Cashier-System)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-> 📄 **專題成果報告 PDF 下載**：[《清水高中園遊會收銀與訂單流程管理系統專案成果報告 (完成版)》](docs/詹秉睿_園遊會收銀系統專案報告_完成版.pdf)
+> 📄 **專題成果報告 PDF 下載**：[《清水高中園遊會收銀與訂單流程管理系統專案成果報告 (完成版)》](docs/project-report.pdf)（亦可參閱 [中文檔名存檔](docs/詹秉睿_園遊會收銀系統專案報告_完成版.pdf)）
 
 ---
 
 ## 📑 目錄 (Table of Contents)
 
 1. [專案背景與研究動機 (Project Motivation)](#1-專案背景與研究動機-project-motivation)
-2. [系統總體架構與網路拓撲 (System Architecture & Network Topology)](#2-系統總體架構與網路拓撲-system-architecture--network-topology)
-3. [多站點工作流與有限狀態機 (Workflow Pipeline & Finite State Machine)](#3-多站點工作流與有限狀態機-workflow-pipeline--finite-state-machine)
-4. [核心工程設計與技術選型權衡 (Key Engineering Decisions & Trade-Offs)](#4-核心工程設計與技術選型權衡-key-engineering-decisions--trade-offs)
-5. [資料庫綱要與關聯模型 (Database Schema & ERD)](#5-資料庫綱要與關聯模型-database-schema--erd)
-6. [現場營運實證與數據分析 (Empirical Field Operation & Analytics)](#6-現場營運實證與數據分析-empirical-field-operation--analytics)
-7. [營運後工程反思與虛實落差 (Cyber-Physical Post-Mortem & Reflection)](#7-營運後工程反思與虛實落差-cyber-physical-post-mortem--reflection)
-8. [學術誠信與 AI 協作角色界定 (Academic Integrity & AI Attribution)](#8-學術誠信與-ai-協作角色界定-academic-integrity--ai-attribution)
-9. [品質保證與自動化測試體系 (Verification & Quality Assurance)](#9-品質保證與自動化測試體系-verification--quality-assurance)
+2. [系統總體架構與網路拓撲 (System Architecture & Network Topology)](#2-系統總體架構與網路拓撲-system-architecture-network-topology)
+3. [多站點工作流與有限狀態機 (Workflow Pipeline & Finite State Machine)](#3-多站點工作流與有限狀態機-workflow-pipeline-finite-state-machine)
+4. [核心工程設計與技術選型權衡 (Key Engineering Decisions & Trade-Offs)](#4-核心工程設計與技術選型權衡-key-engineering-decisions-trade-offs)
+5. [資料庫綱要與關聯模型 (Database Schema & ERD)](#5-資料庫綱要與關聯模型-database-schema-erd)
+6. [現場營運實證與數據分析 (Empirical Field Operation & Analytics)](#6-現場營運實證與數據分析-empirical-field-operation-analytics)
+7. [營運後工程反思與虛實落差 (Cyber-Physical Post-Mortem & Reflection)](#7-營運後工程反思與虛實落差-cyber-physical-post-mortem-reflection)
+8. [學術誠信與 AI 協作角色界定 (Academic Integrity & AI Attribution)](#8-學術誠信與-ai-協作角色界定-academic-integrity-ai-attribution)
+9. [品質保證與自動化測試體系 (Verification & Quality Assurance)](#9-品質保證與自動化測試體系-verification-quality-assurance)
 10. [系統介面展示 (System UI Showcase)](#10-系統介面展示-system-ui-showcase)
-11. [快速上手與環境重現 (Quick Start & Reproducibility)](#11-快速上手與環境重現-quick-start--reproducibility)
+11. [快速上手與環境重現 (Quick Start & Reproducibility)](#11-快速上手與環境重現-quick-start-reproducibility)
 12. [RESTful API 規格文件 (API Specification)](#12-restful-api-規格文件-api-specification)
 13. [參考文獻與技術規範 (References)](#13-參考文獻與技術規範-references)
 
@@ -63,6 +64,7 @@
 ```mermaid
 flowchart TB
     subgraph Clients ["多裝置用戶端 (Multi-Terminal Clients)"]
+        direction TB
         C1["收銀前台 (Cashier)<br/>[行動手機/平板]"]
         C2["涼麵製作組 (Ramen KDS)<br/>[廚房行動端]"]
         C3["糖葫蘆製作組 (Haws KDS)<br/>[廚房行動端]"]
@@ -72,14 +74,14 @@ flowchart TB
     end
 
     subgraph Network ["邊緣網路入口與解析 (Edge Network Ingestion)"]
-        DNS["DuckDNS<br/>動態網域解析 (DDNS)<br/>conchrpg9246.duckdns.org"]
-        NAT["家用路由器 (Home Gateway)<br/>NAT 連接埠轉發 (Port Forwarding)"]
+        DNS["DuckDNS 動態網域解析<br/>conchrpg9246.duckdns.org"]
+        NAT["家用路由器 NAT 轉發<br/>Port 80 映射"]
     end
 
     subgraph EdgeHost ["邊緣主機環境 (Edge Server Environment)"]
         subgraph Gateway ["Nginx 反向代理與防護 (Port 80)"]
             STATIC["靜態資源直出<br/>(/, HTML/CSS/JS)"]
-            REVERSE["API 反向代理 (/api/)<br/>自動注入 X-API-Key<br/>防禦前端密鑰外洩"]
+            REVERSE["API 反向代理 (/api/)<br/>自動注入 X-API-Key"]
         end
 
         subgraph CoreApp ["Node.js + Express 核心服務 (Port 3000)"]
@@ -91,21 +93,20 @@ flowchart TB
 
         subgraph Storage ["SQLite 3 (better-sqlite3) WAL Engine"]
             DB[("cashier.db<br/>主資料庫檔")]
-            WAL[("cashier.db-wal<br/>預寫日誌檔 (Write-Ahead Log)")]
-            SHM[("cashier.db-shm<br/>共享記憶體索引 (Shared Memory)")]
+            WAL[("cashier.db-wal<br/>預寫日誌 (WAL)")]
+            SHM[("cashier.db-shm<br/>共享記憶體 (SHM)")]
         end
     end
 
-    C1 & C2 & C3 & C4 & C5 & C6 -->|4G/5G 行動數據 HTTP| DNS
-    DNS -.->|解析目的公網 IP| Clients
-    Clients -->|HTTP 請求 (Port 80)| NAT
+    C1 & C2 & C3 & C4 & C5 & C6 -->|"4G/5G 行動數據 HTTP"| DNS
+    DNS -.->|"解析公網 IP"| NAT
     NAT --> Gateway
-    STATIC -->|靜態檔案快取| Clients
-    REVERSE -->|反向代理轉發 127.0.0.1:3000| CoreApp
+    STATIC -->|"靜態快取直出"| C1 & C2 & C3 & C4 & C5 & C6
+    REVERSE -->|"反向代理 127.0.0.1:3000"| CoreApp
     AUTH --> SM
     PRICING --> SM
     SM --> INV
-    INV -->|ACID Transaction<br/>單寫多讀不互斥| Storage
+    INV -->|"ACID Transaction"| Storage
     DB <---> WAL
 ```
 
@@ -151,14 +152,14 @@ stateDiagram-v2
     state "已逾期 (expired)" as expired
 
     waiting --> preparing: 製作組開始處理 / 任一組別完成
-    waiting --> canceled: 管理員/前台取消訂單
+    waiting --> canceled: 管理員或前台取消訂單
     waiting --> expired: 超過逾期門檻 (30分鐘)
 
-    preparing --> ready: 滿足整單完成條件 (ramenDone && hawsDone)
+    preparing --> ready: 滿足整單完成條件 (雙組皆完工)
     preparing --> canceled: 訂單取消
 
-    ready --> waiting: 櫃台退回重做 (POST /api/orders/:id/return) - 重設單組旗標
-    ready --> picked_up: 櫃台確認交付 (PATCH /api/orders/:id/status)
+    ready --> waiting: 櫃台退回重做 (重設單組旗標)
+    ready --> picked_up: 櫃台確認交付 (PATCH status)
 
     picked_up --> [*]
     canceled --> [*]
@@ -167,7 +168,7 @@ stateDiagram-v2
 
 #### 核心布林判定邏輯 (Core State Determination)
 ```javascript
-// 後端核心狀態彙整判定式 (server.js)
+// 後端核心狀態彙整判定式 (Server/server.js)
 const ramenDone = (order.ramen_required === 0 || order.ramen_done === 1);
 const hawsDone  = (order.haws_required === 0 || order.haws_done === 1);
 
@@ -209,13 +210,13 @@ if (ramenDone && hawsDone) {
 ### 4.2 服務端防竄改計價引擎 (Server-Side Price Validation)
 在安全性方面，本系統徹底實施**「零信任客戶端」原則**：
 - 前端收銀介面僅發送品項代碼與選項 Key（例如：`{ category: 'ramen', options: { chicken: 'add', eco: true } }`）。
-- 後端收到請求後，**完全忽略前端提交之任何價格數值**，統一以伺服器端 [`config.js`](file:///c:/Users/ytconch/SelfData/%E6%94%B6%E9%8A%80%E7%B3%BB%E7%B5%B1/Cashier-System/Server/config.js) 中的官方定價字典重新逐項加總基底價、加料價與自備餐具折讓（-5 元），從根本杜絕前端利用 F12 或 Proxy 竄改交易金額之可能性。
+- 後端收到請求後，**完全忽略前端提交之任何價格數值**，統一以伺服器端 [Server/config.js](Server/config.js) 中的官方定價字典重新逐項加總基底價、加料價與自備餐具折讓（-5 元），從根本杜絕前端利用 F12 或 Proxy 竄改交易金額之可能性。
 
 ---
 
 ## 5. 資料庫綱要與關聯模型 (Database Schema & ERD)
 
-本系統資料模型由 6 張核心關聯表構成，建置於 [`schema.sql`](file:///c:/Users/ytconch/SelfData/%E6%94%B6%E9%8A%80%E7%B3%BB%E7%B5%B1/Cashier-System/Server/schema.sql) 中：
+本系統資料模型由 6 張核心關聯表構成，建置於 [Server/schema.sql](Server/schema.sql) 中：
 
 ```mermaid
 erDiagram
@@ -223,67 +224,67 @@ erDiagram
     orders ||--o{ order_status_log : "狀態異動日誌 (order_id)"
     
     orders {
-        INTEGER id PK "自我增量主鍵"
-        INTEGER order_no UK "每日流水單號 (唯一識別)"
-        TEXT status "waiting | preparing | ready | picked_up | canceled"
-        TEXT pickup_state "normal | unclaimed"
-        INTEGER ramen_required "是否需涼麵 (0/1)"
-        INTEGER haws_required "是否需糖葫蘆 (0/1)"
-        INTEGER ramen_done "涼麵完工 (0/1)"
-        INTEGER haws_done "糖葫蘆完工 (0/1)"
-        INTEGER total_amount "訂單實收總金額"
-        INTEGER total_cost "品項加總成本"
+        INTEGER id PK "主鍵"
+        INTEGER order_no UK "每日流水單號"
+        TEXT status "訂單狀態"
+        TEXT pickup_state "取餐狀態"
+        INTEGER ramen_required "需涼麵(0/1)"
+        INTEGER haws_required "需糖葫蘆(0/1)"
+        INTEGER ramen_done "涼麵完工(0/1)"
+        INTEGER haws_done "糖葫蘆完工(0/1)"
+        INTEGER total_amount "實收總金額"
+        INTEGER total_cost "品項成本"
         INTEGER profit "訂單毛利"
-        TEXT created_at "ISO 8601 建立時間戳"
-        TEXT updated_at "最後異動時間戳"
-        TEXT return_note "退回重做原因備註"
+        TEXT created_at "建立時間"
+        TEXT updated_at "更新時間"
+        TEXT return_note "退回原因"
     }
 
     order_items {
-        INTEGER id PK "明細主鍵"
-        INTEGER order_id FK "關聯訂單 ID"
-        TEXT category "ramen | haws | drink"
-        TEXT item_key "規格唯一鍵 (如 mix, grape)"
+        INTEGER id PK "主鍵"
+        INTEGER order_id FK "訂單ID"
+        TEXT category "類別(ramen/haws/drink)"
+        TEXT item_key "規格鍵"
         TEXT item_name "品項名稱"
-        INTEGER qty "購買數量"
+        INTEGER qty "數量"
         INTEGER unit_price "單價"
-        INTEGER unit_cost "單件成本"
-        INTEGER subtotal "小計金額"
+        INTEGER unit_cost "單位成本"
+        INTEGER subtotal "小計"
         INTEGER cost_total "成本總額"
-        TEXT options_json "客製選項 JSON (辣度/蔬菜/餐具)"
-        TEXT display_text "前台渲染可讀字串"
+        TEXT options_json "客製選項JSON"
+        TEXT display_text "渲染文字"
         TEXT created_at "建立時間"
     }
 
     order_status_log {
-        INTEGER id PK "日誌主鍵"
-        INTEGER order_id FK "關聯訂單 ID"
+        INTEGER id PK "主鍵"
+        INTEGER order_id FK "訂單ID"
         TEXT old_status "原狀態"
         TEXT new_status "新狀態"
-        TEXT reason "狀態變更事由"
+        TEXT reason "異動事由"
         TEXT changed_at "變更時間"
     }
 
     sessions {
-        TEXT token PK "隨機高熵 Session Token"
-        TEXT role "身分角色 (cashier/ramen/haws/counter/finance/admin)"
+        TEXT token PK "Session Token"
+        TEXT role "角色代碼"
         TEXT username "登入帳號"
         TEXT created_at "簽發時間"
         TEXT expires_at "過期時間"
     }
 
     production_inventory {
-        TEXT component PK "製作組別 (ramen | haws)"
-        TEXT item_key PK "子項目 (mix | grape | tomato | ramen)"
-        INTEGER prepared_count "目前在架預製庫存量"
-        INTEGER sold_out "是否售罄 (0/1)"
-        TEXT updated_at "最後異動時間"
+        TEXT component PK "組別"
+        TEXT item_key PK "品項代碼"
+        INTEGER prepared_count "在庫量"
+        INTEGER sold_out "售罄旗標"
+        TEXT updated_at "更新時間"
     }
 
     production_state {
-        TEXT component PK "製作組別"
+        TEXT component PK "組別"
         INTEGER prepared_count "總預製量"
-        INTEGER sold_out "整組售罄旗標"
+        INTEGER sold_out "售罄旗標"
         TEXT updated_at "更新時間"
     }
 ```
@@ -304,7 +305,7 @@ erDiagram
 - **實測日期**：2026 年 4 月 18 日 (六)
 - **營運時間**：08:45 – 15:00 (共計 6 小時 15 分鐘)
 - **活動地點**：清水高中校慶園遊會・201 班級攤位「武告喝甲」
-- **資料庫真實存檔單量**：**201 筆訂單** (保存於 `cashier.db`)
+- **資料庫真實存檔單量**：**201 筆訂單** (保存於 [Server/data/cashier.db](Server/data/cashier.db))
 - **系統穩定度指標**：**100% 稼動率 (0 次 Crash, 0 次重啟, 0 筆遺失)**
 
 ---
@@ -371,42 +372,51 @@ erDiagram
 
 ## 9. 品質保證與自動化測試體系 (Verification & Quality Assurance)
 
-為驗證系統之強健性，專案建構了完整的 Playwright 自動化端到端煙霧測試 ([`.report-build/smoke.mjs`](file:///c:/Users/ytconch/SelfData/%E6%94%B6%E9%8A%80%E7%B3%BB%E7%B5%B1/.report-build/smoke.mjs))：
+為驗證系統之強健性與合約一致性，本專案於 `Server/` 內建了完整的自動化煙霧測試套件 ([Server/test/smoke.test.js](Server/test/smoke.test.js))。任何人複製本專案後均可直接執行重現：
 
 ```bash
-# 執行端到端自動化驗證
-node .report-build/smoke.mjs
+cd Server
+npm test
 ```
 
-### 9.1 自動化驗證項目矩陣
+### 9.1 自動化驗證項目矩陣 (Test Matrix)
 
-| 驗證項目 | 測試情境與輸入 | 預期斷言與觀察結果 | 檢驗狀態 |
-| :--- | :--- | :--- | :---: |
-| **建單與防竄改計價** | 涼麵 (自備餐具折5元=45元) + 綜合糖葫蘆 (40元) | 後端計算總額精確等於 85 元；主表與兩筆明細皆落檔 | **PASSED** |
-| **製作組過濾分流** | 相同單號分發至兩後勤組端點 `/api/kitchen/queue` | 涼麵組僅接收涼麵品項；糖葫蘆組僅接收糖葫蘆品項 | **PASSED** |
-| **混合訂單完成門檻** | 涼麵組單獨回報完工，糖葫蘆組尚未回報 | 整單狀態維持 `preparing`，櫃台不予叫號；兩組皆完工自動轉為 `ready` | **PASSED** |
-| **退回重做旗標隔離** | 櫃台針對涼麵發動退回重新製作 | 僅涼麵完工旗標重設為 0，糖葫蘆完工旗標完好保留為 1，整單重回 `waiting` | **PASSED** |
-| **交付與顧客即時同步**| 櫃台標記已領取 (`picked_up`) | 顧客端查詢介面即時同步顯示「餐點已領取」 | **PASSED** |
-| **純飲料即時就緒** | 點選冰紅茶 15 元 (無任何廚房旗標) | 建單當下無需等待後勤，訂單即刻標記為 `ready` 可取餐 | **PASSED** |
+| 序號 | 驗證項目 | 測試情境與輸入 | 預期斷言與觀察結果 | 檢驗狀態 |
+| :---: | :--- | :--- | :--- | :---: |
+| 1 | **身分認證與 Token 簽發** | 依序發送全角色帳密至 `/api/login` | 成功獲取高熵 Session Token 並寫入 SQLite sessions 表 | **PASSED** |
+| 2 | **建單與服務端計價防竄改** | 涼麵 (自備餐具折5元=45元) + 綜合糖葫蘆 (40元)；前端惡意注入金額 1 元 | 後端完全忽略前端數值，依定價字典重算總額為 85 元；主表與明細原子性落檔 | **PASSED** |
+| 3 | **製作組異質工序分流** | 相同單號請求後勤端點 `/api/kitchen/queue` | 涼麵組僅接收涼麵品項；糖葫蘆組僅接收糖葫蘆品項；互不干擾 | **PASSED** |
+| 4 | **混合訂單雙組聚合判定** | 涼麵組回報完工，糖葫蘆組未完工；隨後糖葫蘆組完工 | 僅單組完工時維持 `preparing`（櫃台不叫號）；雙組皆完工自動躍遷至 `ready` | **PASSED** |
+| 5 | **逆向退回重做與旗標隔離** | 櫃台針對涼麵發動退回重做 (`/api/orders/:id/return`) | 僅涼麵完工旗標重設為 0，糖葫蘆完工旗標完整保留為 1，整單重回 `waiting` | **PASSED** |
+| 6 | **取餐交付與顧客即時同步** | 櫃台標記已領取 (`picked_up`) | 顧客端查詢介面 (`/api/customer/:order_no`) 即時同步顯示為已領取 | **PASSED** |
+| 7 | **純飲料即時就緒** | 點選冰紅茶 15 元 (無任何廚房旗標需求) | 建單當下無需等待後勤，訂單即刻標記為 `ready` 可直接交付 | **PASSED** |
 
 ### 9.2 資料庫完整性指紋驗證 (Database SHA-256 Provenance)
-現場產出之資料庫檔案均具備不可變更的雜湊指紋紀錄，供評審委員檢驗稽核：
-- `cashier.db`：`6bf3a4d96b6d2049fabeeca3454a4ee8226be96fc6ab6f738bb572feb3cc3e64`
-- `cashier.db-wal`：`38f34e4ec5e30290586f2574e758ae79d28eb78337b872f5aa77951c7f5ff470`
+現場營運落檔之資料庫檔案均具備不可變更的 SHA-256 雜湊指紋紀錄，供評審委員檢驗稽核：
+- `Server/data/cashier.db`：`6bf3a4d96b6d2049fabeeca3454a4ee8226be96fc6ab6f738bb572feb3cc3e64`
+- `Server/data/cashier.db-wal`：`38f34e4ec5e30290586f2574e758ae79d28eb78337b872f5aa77951c7f5ff470`
+- `Server/data/cashier.db-shm`：`5f33912e827d0f4da351bceaf77efc4ca86a65c0170b43c4ce9373a1a2d55502`
 
 ---
 
 ## 10. 系統介面展示 (System UI Showcase)
 
+### 10.1 核心操作工作站介面
 | 站點 1：收銀點單前台 (`cashier.html`) | 站點 2：後勤廚房分流螢幕 (`kitchen-ramen.html`) |
 | :---: | :---: |
 | ![收銀前台介面](docs/images/cashier.png) | ![後勤廚房介面](docs/images/kitchen.png) |
 | *具備即時規格選擇、折扣切換與金額預覽* | *僅呈現該組品項，突出標示客製配料與自備餐具* |
 
-| 站點 3：出餐櫃台核單系統 (`counter.html`) | 系統拓撲與實體部署架構 |
+| 站點 3：出餐櫃台核單系統 (`counter.html`) | 多站點協同呈現 (同一單號在各工作頁) |
 | :---: | :---: |
-| ![出餐櫃台介面](docs/images/counter.png) | ![部署拓撲](docs/images/slide-05.png) |
-| *雙組進度視覺化呈現，支援叫號與退回重做* | *家用主機、NAT、DuckDNS 與 Nginx 整合拓撲* |
+| ![出餐櫃台介面](docs/images/counter.png) | ![跨站點同單呈現](docs/images/slide-08.png) |
+| *雙組進度視覺化呈現，支援叫號與退回重做* | *收銀、涼麵、糖葫蘆與櫃台之資訊流無縫對齊* |
+
+### 10.2 系統架構與實體部署拓撲
+| 家用伺服器對外部署拓撲 | 工作分流與訂單整體流程 |
+| :---: | :---: |
+| ![部署拓撲](docs/images/slide-05.png) | ![工作流程](docs/images/slide-03.png) |
+| *家用主機、NAT、DuckDNS 與 Nginx 整合拓撲* | *顧客、收銀、後勤與出餐櫃台之端到端流通* |
 
 ---
 
@@ -426,10 +436,13 @@ node .report-build/smoke.mjs
 git clone https://github.com/ytconch/Cashier-System.git
 cd Cashier-System/Server
 
-# 2. 安裝核心依賴 (僅 better-sqlite3 與 express)
+# 2. 安裝核心依賴 (better-sqlite3 與 express)
 npm install
 
-# 3. 啟動伺服器 (預設監聽 Port 3000)
+# 3. 執行自動化回歸測試 (確認合約與狀態機正確性)
+npm test
+
+# 4. 啟動伺服器 (預設監聽 Port 3000)
 npm start
 ```
 
@@ -489,20 +502,27 @@ server {
 
 ```
 Cashier-System/
-├── docs/                             # 系統架構圖與 UI 截圖資源
+├── docs/                             # 系統架構圖、成果報告與 UI 截圖資源
+│   ├── project-report.pdf            # 專題成果報告完整版 (ASCII 檔名，相容各端)
+│   ├── 詹秉睿_園遊會收銀系統專案報告_完成版.pdf # 專題成果報告原始完整版
 │   └── images/
 │       ├── cashier.png               # 收銀點餐介面截圖
 │       ├── kitchen.png               # 後勤廚房分流截圖
 │       ├── counter.png               # 出餐櫃台核單截圖
 │       ├── slide-03.png              # 工作分流與訂單流程示意圖
+│       ├── slide-04.png              # 系統架構與選擇理由圖
 │       ├── slide-05.png              # 家用伺服器對外部署拓撲圖
+│       ├── slide-06.png              # 混合訂單完成條件示意圖
+│       ├── slide-08.png              # 同一筆訂單在各工作頁的呈現圖
 │       └── slide-10.png              # 營業期間每小時建單長條圖
 ├── Server/                           # 核心伺服器應用目錄
 │   ├── config.js                     # 菜單定價、成本、角色帳密與金鑰配置
 │   ├── nginx.conf.sample             # 生產環境 Nginx 反向代理示範檔
-│   ├── package.json                  # 專案相依宣告檔
+│   ├── package.json                  # 專案相依宣告與 npm scripts
 │   ├── schema.sql                    # SQLite 資料表綱要與索引定義
 │   ├── server.js                     # Express RESTful 核心、狀態機與資料庫存取層
+│   ├── test/                         # 自動化測試套件目錄
+│   │   └── smoke.test.js             # 7 大核心合約與狀態機端到端測試
 │   ├── data/                         # 生產資料庫儲存目錄
 │   │   ├── cashier.db                # 2026.04.18 實測 201 筆正式訂單主檔
 │   │   ├── cashier.db-wal            # 預寫日誌檔 (WAL)
@@ -535,6 +555,7 @@ Cashier-System/
 ├── details.html                      # 籌備開支與成本明細
 ├── waitToDo.html                     # 籌備待辦事項追蹤
 ├── ActivityMenu.jpg                  # 實體園遊會原始菜單海報
+├── LICENSE                           # MIT 開源授權合約
 ├── .gitignore                        # Git 版本控制忽略設定
 └── README.md                         # 專題核心說明文件 (本檔)
 ```
@@ -580,4 +601,4 @@ Cashier-System/
    DuckDNS Project. *Why Duck DNS & Specifications*.  
    URL: [https://duckdns.org/why.jsp](https://duckdns.org/why.jsp)
 5. **專案成果驗證報告**  
-   詹秉睿 (2026). 《清水高中校慶園遊會收銀與訂單流程管理系統專案成果報告》. [下載完整專案報告 PDF (完成版)](docs/詹秉睿_園遊會收銀系統專案報告_完成版.pdf).
+   詹秉睿 (2026). 《清水高中校慶園遊會收銀與訂單流程管理系統專案成果報告》. [下載完整專案報告 PDF (完成版)](docs/project-report.pdf).
