@@ -37,16 +37,16 @@ async function deleteOrder(id, orderNo) {
 
 async function loadFinance() {
   try {
-    // 將原本的 Promise.all 增加一個 API 請求
+    // 平行向伺服器拉取摘要指標、小時營收、品項獲利與即時訂單
     const [summary, hourly, menu, ordersData] = await Promise.all([
       API.request('/api/dashboard/summary'),
       API.request('/api/reports/hourly?days=1'),
       API.request('/api/reports/menu'),
-      API.request('/api/orders') // 獲取所有訂單
+      API.request('/api/orders')
     ]);
 
     const s = summary.summary;
-    const hData = hourly.data;// 在檔案頂部加上這行
+    const hData = hourly.data || [];
     const allOrdersEl = document.getElementById('all-orders-list');
 
     // 1. KPI 戰情看板
@@ -146,30 +146,26 @@ async function loadFinance() {
         if (order.status === 'waiting') statusColor = '#fa5252';
         if (order.status === 'ready') statusColor = '#40c057';
 
-        // 2. 處理時間 (如果 created_at 不存在，嘗試用 time)
-        const rawTime = order.created_at || order.time;
-        const timeStr = rawTime.split('T').join(" ") // 拿 T 後面的部分，並去掉毫秒
+        // 2. 格式化時間 (將 ISO 字串中的 T 轉為空格並去除毫秒)
+        const rawTime = order.created_at || order.time || '';
+        const timeStr = rawTime ? rawTime.replace('T', ' ').split('.')[0] : '--:--';
 
-        // 3. 【核心修正】計算該訂單總金額
-        // 遍歷 items 陣列，將 (單價 * 數量) 全部加總
-        const calculatedTotal = (order.items || []).reduce((sum, item) => {
-          // 這裡請確保你的 item 欄位名稱正確，可能是 price 或 unit_price
-          const price = item.price || item.unit_price || 0;
-          return sum + (price * item.qty);
-        }, 0);
+        // 3. 訂單總金額 (優先取後端計算好的 total_amount，若無則依品項加總)
+        const totalAmount = order.total_amount != null
+          ? order.total_amount
+          : (order.items || []).reduce((sum, item) => sum + (item.subtotal || (item.unit_price || 0) * (item.qty || 1)), 0);
 
         // 4. 品項摘要
         const summary = order.items && order.items.length > 0
           ? order.items.map(i => `${i.item_name || i.name}x${i.qty}`).join(', ')
           : '無品項資料';
 
-        // 在 allOrdersEl.innerHTML 的 map 函數中，最後一個 <td> 後面新增：
         return `
   <tr style="font-size: 0.9rem; border-bottom: 1px solid #eee;">
     <td style="padding: 10px;"><strong>#${esc(order.order_no)}</strong></td>
     <td style="padding: 10px; color: #666;">${esc(timeStr)}</td>
-    <td style="padding: 10px; ...">${esc(summary)}</td>
-    <td style="padding: 10px; font-weight: bold;">${money(calculatedTotal)}</td>
+    <td style="padding: 10px;">${esc(summary)}</td>
+    <td style="padding: 10px; font-weight: bold;">${money(totalAmount)}</td>
     <td style="padding: 10px;">
       <span style="color: ${statusColor}; font-weight: bold;">${esc(order.status_label)}</span>
     </td>
@@ -180,7 +176,7 @@ async function loadFinance() {
       </button>
     </td>
   </tr>
-`
+`;
       }).join('');
     }
 
@@ -191,6 +187,6 @@ async function loadFinance() {
   }
 }
 
-// 園遊會節奏快，縮短更新頻率至 10 秒
+// 每 2 秒自動重新整理財務數據，保持即時戰情同步
 loadFinance();
 setInterval(loadFinance, 2000);

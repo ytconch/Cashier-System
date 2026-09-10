@@ -9,9 +9,12 @@ function formatTime(rawTime) {
   return rawTime.replace('T', ' ').split('.')[0].slice(0, 16);
 }
 
-// 輔助函式：計算總金額 (假設 order.items 內有 price 與 quantity)
-function calculateTotal(items) {
-  return items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.quantity || 1)), 0);
+// 輔助函式：計算訂單品項總金額 (相容 subtotal 與 unit_price/qty)
+function calculateTotal(items = []) {
+  return items.reduce((sum, item) => {
+    const sub = item.subtotal != null ? Number(item.subtotal) : (Number(item.unit_price || item.price || 0) * Number(item.qty || item.quantity || 1));
+    return sum + sub;
+  }, 0);
 }
 
 async function queryOrder() {
@@ -57,10 +60,7 @@ async function queryOrder() {
         <div class="order-footer">
           <div class="total-row">
             <span>總金額</span>
-            <span class="total-amount">$${esc(items.reduce((sum,cur)=>{
-              sum += cur.subtotal
-              return sum
-            } , 0))}</span>
+            <span class="total-amount">${money(order.total_amount != null ? order.total_amount : calculateTotal(items))}</span>
           </div>
         </div>
       </div>
@@ -96,8 +96,8 @@ window.clearQuery = function () {
 window.clearQuery();
 
 /**
- * 渲染訂單項目列表
- * 修正：增加欄位自動偵測，確保名稱能顯示
+ * 渲染顧客端訂單明細列表
+ * @param {Array} items 訂單品項陣列
  */
 function CustomerrenderOrderItems(items) {
   if (!items || items.length === 0) {
@@ -105,20 +105,20 @@ function CustomerrenderOrderItems(items) {
   }
 
   return items.map(item => {
-    // 優先順序：name -> title -> item_name -> product_name
-    // 如果都沒有，就顯示 "未知商品"
-    const displayName = item.name || item.title || item.item_name || item.product_name || '未知商品';
+    // 依序取得顯示名稱：客製化選項文字 -> 品項名稱
+    const displayName = item.display_text || item.item_name || item.name || item.title || '未知商品';
+    const qty = item.qty != null ? item.qty : (item.quantity != null ? item.quantity : 1);
     
-    // 確保金額計算正確，優先取 subtotal
-    const displayPrice = item.subtotal || (Number(item.price || 0) * Number(item.quantity || 1));
+    // 計算或取得小計金額
+    const subtotal = item.subtotal != null ? item.subtotal : (Number(item.unit_price || item.price || 0) * Number(qty));
 
     return `
       <div class="item-row">
         <div class="item-info">
           <div class="item-name">${esc(displayName)}</div>
-          <div class="item-qty muted">x ${esc(item.quantity || 1)}</div>
+          <div class="item-qty muted">x ${esc(qty)}</div>
         </div>
-        <div class="item-price">$${esc(displayPrice)}</div>
+        <div class="item-price">${money(subtotal)}</div>
       </div>
     `;
   }).join('');

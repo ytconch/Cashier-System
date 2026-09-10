@@ -290,7 +290,7 @@ function buildRamenDisplay(options = {}) {
   const spicyLabel = options.spicy ? '加辣' : '不加辣'
   const ecoLabel = options.eco ? '有環保餐具' : '沒環保餐具'
   
-  // 新增以下標籤判斷
+  // 判斷蔬菜客製配料標籤
   const cucumberLabel = options.cucumber ? '加小黃瓜' : '不加小黃瓜'
   const carrotLabel = options.carrot ? '加紅蘿蔔' : '不加紅蘿蔔'
 
@@ -565,14 +565,14 @@ app.post('/api/orders', (req, res) => {
     const ramenInventory = getInventoryRow('ramen', 'ramen');
 
     if (ramenQtyNeeded > 0 && ramenInventory?.sold_out) {
-      throw new Error('????????????????????');
+      throw new Error('涼麵目前已售罄，無法下單');
     }
 
     for (const [itemKey, qty] of Object.entries(hawsQtyNeededByType)) {
       const inventory = getInventoryRow('haws', itemKey);
       if (qty > 0 && inventory?.sold_out) {
         const itemName = config.prices.haws.types[itemKey]?.name || itemKey;
-        throw new Error(`${itemName} ?????????????????????`);
+        throw new Error(`${itemName} 目前已售罄，無法下單`);
       }
     }
 
@@ -648,7 +648,7 @@ app.post('/api/orders', (req, res) => {
         WHERE id = ?
       `).run(ramenCount, hawsCount, ramenDone, hawsDone, totalAmount, totalCost, profit, orderId);
 
-      logStatus(orderId, null, 'waiting', '????');
+      logStatus(orderId, null, 'waiting', '建立新訂單');
 
       const order = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(orderId);
       if (
@@ -656,7 +656,7 @@ app.post('/api/orders', (req, res) => {
         (order.haws_required === 0 || order.haws_done === 1)
       ) {
         db.prepare(`UPDATE orders SET status = 'ready', updated_at = ? WHERE id = ?`).run(now, orderId);
-        logStatus(orderId, 'waiting', 'ready', '???????????');
+        logStatus(orderId, 'waiting', 'ready', '品項皆已備妥，可取餐');
       }
 
       return orderId;
@@ -970,12 +970,12 @@ app.get('/api/production/state', (req, res) => {
 app.patch('/api/production/:component', (req, res) => {
   const component = String(req.params.component || '');
   if (!['ramen', 'haws'].includes(component)) {
-    return json(res, 400, { ok: false, message: 'component ???' });
+    return json(res, 400, { ok: false, message: 'component 參數不合法' });
   }
 
   const expectedRole = kitchenRoleFor(component);
   if (![expectedRole, 'admin'].includes(req.session.role)) {
-    return json(res, 403, { ok: false, message: '????????????' });
+    return json(res, 403, { ok: false, message: '無權限修改此組別庫存' });
   }
 
   const body = getBody(req);
@@ -1012,21 +1012,21 @@ app.patch('/api/production/:component', (req, res) => {
 
 app.post('/api/orders/:id/return', requireSession('counter', 'admin'), (req, res) => {
   const order = db.prepare(`SELECT * FROM orders WHERE id = ?`).get(req.params.id);
-  if (!order) return json(res, 404, { ok: false, message: '?????' });
+  if (!order) return json(res, 404, { ok: false, message: '找不到訂單' });
 
   const { component, reason } = getBody(req);
   if (!['ramen', 'haws'].includes(component)) {
-    return json(res, 400, { ok: false, message: 'component ???' });
+    return json(res, 400, { ok: false, message: 'component 參數不合法' });
   }
 
   const requiredField = component === 'ramen' ? 'ramen_required' : 'haws_required';
   const doneField = component === 'ramen' ? 'ramen_done' : 'haws_done';
   if (!order[requiredField]) {
-    return json(res, 400, { ok: false, message: '????????????' });
+    return json(res, 400, { ok: false, message: '此訂單不包含該品項' });
   }
 
-  const targetLabel = component === 'ramen' ? '?????' : '??????';
-  const returnNote = reason ? String(reason).trim() : `???? ${targetLabel}`;
+  const targetLabel = component === 'ramen' ? '涼麵製作組' : '糖葫蘆製作組';
+  const returnNote = reason ? String(reason).trim() : `退回重新製作 ${targetLabel}`;
   db.prepare(`
     UPDATE orders
     SET ${doneField} = 0,
