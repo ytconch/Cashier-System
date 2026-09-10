@@ -16,80 +16,82 @@
 ## 📑 目錄 (Table of Contents)
 
 1. [系統架構 (Architecture)](#1-系統架構-architecture)
-   - 1.1 [邊緣拓撲與軟體分層 (Edge Topology & System Layering)](#11-邊緣拓撲與軟體分層-edge-topology-system-layering)
-   - 1.2 [多站點協同工作流與有限狀態機 (Workflow Pipeline & Finite State Machine)](#12-多站點協同工作流與有限狀態機-workflow-pipeline-finite-state-machine)
-   - 1.3 [核心工程機制與選型權衡 (Key Engineering Mechanisms & Trade-Offs)](#13-核心工程機制與選型權衡-key-engineering-mechanisms-trade-offs)
-   - 1.4 [資料庫綱要與關聯模型 (Database Schema & ERD)](#14-資料庫綱要與關聯模型-database-schema-erd)
+   - 1.1 [邊緣拓撲與軟體分層 (Edge Topology and Software Layering)](#11-邊緣拓撲與軟體分層-edge-topology-and-software-layering)
+   - 1.2 [多站點工作流與有限狀態機 (Workflow Pipeline and Finite State Machine)](#12-多站點工作流與有限狀態機-workflow-pipeline-and-finite-state-machine)
+   - 1.3 [核心工程機制與技術權衡 (Key Engineering Mechanisms and Trade-Offs)](#13-核心工程機制與技術權衡-key-engineering-mechanisms-and-trade-offs)
+   - 1.4 [資料庫綱要與實體關聯模型 (Database Schema and ERD)](#14-資料庫綱要與實體關聯模型-database-schema-and-erd)
 2. [快速啟動 (Getting Started)](#2-快速啟動-getting-started)
    - 2.1 [環境先決條件 (Prerequisites)](#21-環境先決條件-prerequisites)
    - 2.2 [本機啟動步驟 (Quick Start Commands)](#22-本機啟動步驟-quick-start-commands)
    - 2.3 [預設測試帳號矩陣 (Default Test Accounts)](#23-預設測試帳號矩陣-default-test-accounts)
-   - 2.4 [主要服務端點與展示 (Service Endpoints & Showcase)](#24-主要服務端點與展示-service-endpoints-showcase)
+   - 2.4 [主要服務端點與展示 (Service Endpoints and Showcase)](#24-主要服務端點與展示-service-endpoints-and-showcase)
 3. [參考文獻 (References)](#3-參考文獻-references)
 
 ---
 
 ## 1. 系統架構 (Architecture)
 
-### 1.1 邊緣拓撲與軟體分層 (Edge Topology & System Layering)
+### 1.1 邊緣拓撲與軟體分層 (Edge Topology and Software Layering)
 
-針對校園線下活動短時瞬態高流量 (Burst Traffic)、無外部雲端維運預算之情境，系統採用**分層邊緣運算拓撲 (Tiered Edge Topology)**。全系統運行於地端邊緣主機，結合動態域名解析、反向代理、Node.js 核心應用與 WAL 嵌入式儲存：
+針對校園線下活動短時瞬態高流量 (Burst Traffic)、無外部雲端維運預算之情境，系統採用**分層邊緣運算拓撲 (Tiered Edge Topology)**。全系統運行於地端邊緣主機，結合動態網域解析、Nginx 反向代理、Node.js 核心應用與 WAL 模式嵌入式資料庫：
 
 ```mermaid
 flowchart TB
-    subgraph Clients ["多裝置用戶端 (Multi-Terminal Clients)"]
+    subgraph Clients ["多終端操作介面 (Multi-Terminal Clients)"]
         direction TB
-        C1["收銀前台 (Cashier)<br/>[行動手機/平板]"]
-        C2["涼麵製作組 (Ramen KDS)<br/>[廚房行動端]"]
-        C3["糖葫蘆製作組 (Haws KDS)<br/>[廚房行動端]"]
-        C4["出餐櫃台 (Counter)<br/>[核單平板/筆電]"]
-        C5["財務戰情 (Finance)<br/>[戰情看板大螢幕]"]
-        C6["顧客查單 (Customer)<br/>[個人智慧型手機]"]
+        C1["收銀前台 (Cashier)<br/>行動端點餐建單"]
+        C2["涼麵製作組 (Ramen KDS)<br/>廚房獨立待製佇列"]
+        C3["糖葫蘆製作組 (Haws KDS)<br/>在架庫存與工序管理"]
+        C4["出餐櫃台 (Counter)<br/>雙工序匯整與交付"]
+        C5["財務戰情 (Finance)<br/>營收毛利即時看板"]
+        C6["顧客查單 (Customer)<br/>掃描序號免登入查單"]
     end
 
-    subgraph Network ["邊緣網路入口 (Edge Network Ingestion)"]
+    subgraph Network ["邊緣網路接入 (Edge Network Ingestion)"]
         DNS["DuckDNS 動態網域解析<br/>conchrpg9246.duckdns.org"]
-        NAT["家用路由器 NAT 轉發<br/>Port 80 映射"]
+        NAT["路由器 NAT 連接埠轉發<br/>外部 Port 80 映射"]
     end
 
-    subgraph EdgeHost ["邊緣主機環境 (Edge Server Environment)"]
-        subgraph Gateway ["Nginx 反向代理與防護 (Port 80)"]
-            STATIC["靜態資源快取直出<br/>(/, HTML/CSS/JS)"]
-            REVERSE["API 反向代理 (/api/)<br/>自動注入內部 X-API-Key"]
+    subgraph EdgeHost ["邊緣伺服主機 (Edge Server Host)"]
+        subgraph Gateway ["Nginx 代理閘道 (Port 80)"]
+            STATIC["靜態資源快取直出<br/>HTML / CSS / JS / Assets"]
+            REVERSE["API 反向代理 (/api/)<br/>注入內部金鑰 X-API-Key"]
         end
 
-        subgraph CoreApp ["Node.js + Express 核心服務 (Port 3000)"]
-            AUTH["Token 身分驗證與 Session"]
-            PRICING["服務端防竄改計價引擎"]
-            SM["多站點狀態機分流引擎"]
-            INV["預製庫存扣減管理器"]
+        subgraph CoreApp ["Node.js + Express 應用層 (Port 3000)"]
+            AUTH["Token 認證與會話管理"]
+            PRICING["服務端定價與防竄改計價"]
+            SM["多站點狀態機匯流引擎"]
+            INV["預製庫存扣減原子操作"]
         end
 
-        subgraph Storage ["SQLite 3 (better-sqlite3) WAL Engine"]
-            DB[("cashier.db<br/>主資料庫檔")]
-            WAL[("cashier.db-wal<br/>預寫日誌 (WAL)")]
-            SHM[("cashier.db-shm<br/>共享記憶體 (SHM)")]
+        subgraph Storage ["SQLite 3 儲存層 (WAL Mode)"]
+            DB[("cashier.db 主資料庫")]
+            WAL[("cashier.db-wal 預寫日誌")]
+            SHM[("cashier.db-shm 共享記憶體")]
         end
     end
 
-    C1 & C2 & C3 & C4 & C5 & C6 -->|"4G/5G 行動數據 HTTP"| DNS
+    Clients -->|"HTTP 4G/5G 行動數據"| DNS
     DNS -.->|"解析公網 IP"| NAT
-    NAT --> Gateway
-    STATIC -->|"靜態快取直出"| C1 & C2 & C3 & C4 & C5 & C6
-    REVERSE -->|"本地轉發 127.0.0.1:3000"| CoreApp
-    AUTH --> SM
+    NAT --> STATIC
+    NAT --> REVERSE
+    STATIC -.->|"快取直出"| Clients
+    REVERSE -->|"反向代理 127.0.0.1:3000"| AUTH
+    AUTH --> PRICING
     PRICING --> SM
     SM --> INV
-    INV -->|"ACID 交易寫入"| Storage
+    INV -->|"ACID 交易寫入"| DB
     DB <--> WAL
+    DB <--> SHM
 ```
 
-- **零雲端租用成本 (Zero Cloud Cost)**：以實體主機配合 DuckDNS 動態解析與家用路由器連接埠轉發，徹底免除雲端主機租賃費用。
-- **邊緣反向代理安全注入**：Nginx 負責對外 Port 80 監聽並直出靜態資源；在轉發 `/api/` 請求至本地回環時，由 Nginx 自動注入 `X-API-Key` 內部金鑰，避免金鑰暴露於前端客戶端代碼中。
+- **零雲端租用成本 (Zero Cloud Cost)**：以實體地端主機配合 DuckDNS 動態解析與家用路由器連接埠轉發，免除雲端主機租賃開銷。
+- **邊緣反向代理安全注入**：Nginx 對外監聽 Port 80 並直出靜態資源；在轉發 `/api/` 請求至後端時，由 Nginx 自動注入內部 `X-API-Key` 金鑰，金鑰不落地前端客戶端，有效防止未經授權之 API 直連。
 
 ---
 
-### 1.2 多站點協同工作流與有限狀態機 (Workflow Pipeline & Finite State Machine)
+### 1.2 多站點工作流與有限狀態機 (Workflow Pipeline and Finite State Machine)
 
 系統針對園遊會現場異質工序（即食品糖葫蘆、現製涼麵、免廚房常規飲料）實作**有限狀態機 (Finite State Machine, FSM)**，負責非同步拆單、製作進度追蹤與出餐齊備性匯流：
 
@@ -140,7 +142,7 @@ if (ramenDone && hawsDone) {
 
 ---
 
-### 1.3 核心工程機制與選型權衡 (Key Engineering Mechanisms & Trade-Offs)
+### 1.3 核心工程機制與技術權衡 (Key Engineering Mechanisms and Trade-Offs)
 
 | 維度 | 本專案選型 | 傳統/重型替代方案 | 關鍵選型理由與工程權衡 (Trade-Offs) |
 | :--- | :--- | :--- | :--- |
@@ -155,7 +157,7 @@ if (ramenDone && hawsDone) {
 
 ---
 
-### 1.4 資料庫綱要與關聯模型 (Database Schema & ERD)
+### 1.4 資料庫綱要與實體關聯模型 (Database Schema and ERD)
 
 系統資料庫建構於 [Server/schema.sql](Server/schema.sql)，包含 6 張核心資料表：
 
@@ -241,6 +243,7 @@ npm install
 
 # 3. 執行自動化回歸測試 (驗證 7 項核心合約與狀態機正確性)
 npm test
+# 註：Windows PowerShell 環境若受限於腳本執行原則 (PSSecurityException)，可改以 npm.cmd test 或 node test/smoke.test.js 執行
 
 # 4. 啟動伺服器 (預設監聽 Port 3000)
 npm start
@@ -262,7 +265,7 @@ npm start
 
 ---
 
-### 2.4 主要服務端點與展示 (Service Endpoints & Showcase)
+### 2.4 主要服務端點與展示 (Service Endpoints and Showcase)
 
 伺服器啟動完成後，開啟瀏覽器即可進入對應端點：
 - **系統入口登入頁**：`http://localhost:3000/` 或 `http://localhost:3000/index.html`
@@ -308,17 +311,20 @@ server {
 
 ## 3. 參考文獻 (References)
 
-1. **Express.js Application Architecture & Middleware Routing**  
-   Express.js Foundation. *Routing & Error Handling Guidelines*.  
-   URL: [https://expressjs.com/en/starter/hello-world.html](https://expressjs.com/en/starter/hello-world.html)
-2. **SQLite Write-Ahead Logging (WAL) & High-Concurrency Principles**  
-   SQLite Development Team. *Write-Ahead Logging* and *Appropriate Uses For SQLite*.  
+1. **RESTful 架構風格與分散式超媒體系統**  
+   Fielding, R. T. (2000). *Architectural Styles and the Design of Network-based Software Architectures*. Doctoral dissertation, University of California, Irvine.  
+   URL: [https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm](https://www.ics.uci.edu/~fielding/pubs/dissertation/top.htm)
+2. **反應式系統與有限狀態機階層模型 (Statecharts / FSM)**  
+   Harel, D. (1987). *Statecharts: A Visual Formalism for Complex Systems*. Science of Computer Programming, 8(3), 231-274.  
+   DOI: [10.1016/0167-6423(87)90035-9](https://doi.org/10.1016/0167-6423(87)90035-9)
+3. **資料庫交易處理概念與技術 (ACID & WAL 原理)**  
+   Gray, J., & Reuter, A. (1992). *Transaction Processing: Concepts and Techniques*. Morgan Kaufmann Publishers.
+4. **SQLite 預寫日誌 (Write-Ahead Logging, WAL) 架構設計**  
+   Hipp, D. R., et al. (2010). *Write-Ahead Logging*. SQLite Official Documentation.  
    URL: [https://www.sqlite.org/wal.html](https://www.sqlite.org/wal.html) | [https://sqlite.org/whentouse.html](https://sqlite.org/whentouse.html)
-3. **Nginx HTTP Reverse Proxy & Header-Based API Key Ingestion**  
-   Nginx Documentation. *Module ngx_http_proxy_module Reference*.  
+5. **Nginx 高效反向代理與安全標頭轉發架構**  
+   Sysoev, I., et al. *Module ngx_http_proxy_module Reference & Security Guidelines*. F5 / Nginx Documentation.  
    URL: [https://nginx.org/en/docs/http/ngx_http_proxy_module.html](https://nginx.org/en/docs/http/ngx_http_proxy_module.html)
-4. **Dynamic DNS (DuckDNS) Edge Deployment Architecture**  
-   DuckDNS Project. *Specifications and Remote Endpoint Integration*.  
-   URL: [https://duckdns.org/why.jsp](https://duckdns.org/why.jsp)
-5. **專案成果驗證報告**  
-   詹秉睿 (2026). 《清水高中校慶園遊會收銀與訂單流程管理系統專案成果報告》. 清水高中學生專題實作報告.
+6. **Express.js 應用程式架構與中介軟體管線 (Middleware Pipeline)**  
+   OpenJS Foundation. *Express.js Routing and Error Handling Guidelines*.  
+   URL: [https://expressjs.com/en/starter/hello-world.html](https://expressjs.com/en/starter/hello-world.html)
